@@ -2,7 +2,7 @@
 	PinChangeInt.cpp
 */
 #ifndef WProgram_h
-#include "WProgram.h"
+#include <WProgram.h>
 #endif
 #ifndef PinChangeInt_h
 #include <PinChangeInt.h>
@@ -17,7 +17,7 @@ PCintPort PCintPort::pcIntPorts[] = {
 	PCintPort(2,PCMSK2)
 };
 
-void PCintPort::addPin(uint8_t mode,uint8_t mask,PCIntvoidFuncPtr userFunc)
+void PCintPort::addPin(uint8_t mode,uint8_t mask,PCIntvoidFuncPtr userFunc, PCIntvoidDataPtr userData)
 {
 	int i = 0;
 	PCintPin* p = PCintPin::pinDataAlloc;
@@ -31,6 +31,7 @@ void PCintPort::addPin(uint8_t mode,uint8_t mask,PCIntvoidFuncPtr userFunc)
 					p->PCintMode = mode;
 					*t = p;
 					p->PCintFunc = userFunc;
+					p->userData = userData;
 					// set the mask
 					pcmask |= p->PCIntMask = mask;
 					// enable the interrupt
@@ -59,6 +60,7 @@ void PCintPort::delPin(uint8_t mask)
 			p.PCIntMask = 0;
 			p.PCintMode = 0;
 			p.PCintFunc = NULL;
+			p.userData = NULL;
 			do { // shuffle down as we pass through the list, filling the hole
 				*t = t[1];
 			} while (*t);
@@ -72,7 +74,7 @@ void PCintPort::delPin(uint8_t mask)
 /*
  * attach an interrupt to a specific pin using pin change interrupts.
  */
-void PCintPort::attachInterrupt(uint8_t pin, PCIntvoidFuncPtr userFunc, int mode)
+void PCintPort::attachInterrupt(uint8_t pin, PCIntvoidFuncPtr userFunc, int mode, PCIntvoidDataPtr userData)
 {
 	uint8_t portNum = digitalPinToPort(pin);
 	if ((portNum == NOT_A_PORT) || (userFunc == NULL)) {
@@ -81,7 +83,7 @@ void PCintPort::attachInterrupt(uint8_t pin, PCIntvoidFuncPtr userFunc, int mode
 	// map pin to PCIR register
 	uint8_t portIndex = portNum - 2;
 	PCintPort& port = PCintPort::pcIntPorts[portIndex];
-	port.addPin(mode,digitalPinToBitMask(pin),userFunc);
+	port.addPin(mode,digitalPinToBitMask(pin),userFunc, userData);
 }
 
 void PCintPort::detachInterrupt(uint8_t pin)
@@ -120,7 +122,7 @@ void PCintPort::PCint() {
 					|| ((p.PCintMode == FALLING) && !(curr & p.PCIntMask))
 					|| ((p.PCintMode == RISING) && (curr & p.PCIntMask))
 					) {
-					p.PCintFunc();
+					p.PCintFunc(p.userData);
 				}
 			}
 			t++;

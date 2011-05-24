@@ -69,6 +69,7 @@
 
 
 typedef void (*PCIntvoidFuncPtr)(void);
+typedef void (*PCIntvoidDataPtr)(void);
 
 class PCintPort {
 				PCintPort(int index,volatile uint8_t& maskReg) :
@@ -81,7 +82,7 @@ class PCintPort {
 					}
 				}
 public:
-	static		void attachInterrupt(uint8_t pin, PCIntvoidFuncPtr userFunc, int mode);
+	static		void attachInterrupt(uint8_t pin, PCIntvoidFuncPtr userFunc, int mode,  PCIntvoidDataPtr PCintData);
 	static		void detachInterrupt(uint8_t pin);
 	INLINE_PCINT void PCint();
 	static		PCintPort	pcIntPorts[];
@@ -93,11 +94,12 @@ protected:
 						PCintFunc((PCIntvoidFuncPtr)NULL),
 						PCintMode(0) {}
 		PCIntvoidFuncPtr PCintFunc;
+		PCIntvoidDataPtr PCintData;
 		uint8_t 	PCintMode;
 		uint8_t		PCIntMask;
 		static PCintPin	pinDataAlloc[MAX_PIN_CHANGE_PINS];
 	};
-	void		addPin(uint8_t mode,uint8_t mask,PCIntvoidFuncPtr userFunc);
+	void		addPin(uint8_t mode,uint8_t mask,PCIntvoidFuncPtr userFunc, PCIntvoidDataPtr PCintData);
 	void		delPin(uint8_t mask);
 	volatile	uint8_t&		portInputReg;
 	volatile	uint8_t&		pcmask;
