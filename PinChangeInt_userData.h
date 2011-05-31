@@ -1,13 +1,14 @@
 /*
 	PinChangeInt.h
 */
-
-#ifndef PinChangeInt_h
-#define	PinChangeInt_h
-#include "PinChangeIntConfig.h"
+#include <WProgram.h>
 #ifndef Pins_Arduino_h
-#include "pins_arduino.h"
+#include <pins_arduino.h>
 #endif
+#ifndef PinChangeInt_userData_h
+#define	PinChangeInt_userData_h
+
+#include "PinChangeIntConfig.h"
 // This library was inspired by and derived from "johnboiles" (it seems) Main.PCInt Arduino Playground example
 // see: http://www.arduino.cc/playground/Main/PcInt
 
@@ -68,8 +69,7 @@
 #define	PCattachInterrupt(pin,userFunc,mode) PCintPort::attachInterrupt(pin, userFunc,mode)
 
 
-typedef void (*PCIntvoidFuncPtr)(void);
-typedef void (*PCIntvoidDataPtr)(void);
+typedef void (*PCIntvoidFuncPtr)(void*);
 
 class PCintPort {
 				PCintPort(int index,volatile uint8_t& maskReg) :
@@ -82,7 +82,7 @@ class PCintPort {
 					}
 				}
 public:
-	static		void attachInterrupt(uint8_t pin, PCIntvoidFuncPtr userFunc, int mode,  PCIntvoidDataPtr PCintData);
+	static		void attachInterrupt(uint8_t pin, PCIntvoidFuncPtr userFunc, int mode,  void* userData);
 	static		void detachInterrupt(uint8_t pin);
 	INLINE_PCINT void PCint();
 	static		PCintPort	pcIntPorts[];
@@ -94,12 +94,12 @@ protected:
 						PCintFunc((PCIntvoidFuncPtr)NULL),
 						PCintMode(0) {}
 		PCIntvoidFuncPtr PCintFunc;
-		PCIntvoidDataPtr PCintData;
+		void* PCintData;
 		uint8_t 	PCintMode;
 		uint8_t		PCIntMask;
 		static PCintPin	pinDataAlloc[MAX_PIN_CHANGE_PINS];
 	};
-	void		addPin(uint8_t mode,uint8_t mask,PCIntvoidFuncPtr userFunc, PCIntvoidDataPtr PCintData);
+	void		addPin(uint8_t mode,uint8_t mask,PCIntvoidFuncPtr userFunc, void* userData);
 	void		delPin(uint8_t mask);
 	volatile	uint8_t&		portInputReg;
 	volatile	uint8_t&		pcmask;

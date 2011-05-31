@@ -1,11 +1,9 @@
 /*
 	PinChangeInt.cpp
 */
-#ifndef WProgram_h
 #include <WProgram.h>
-#endif
-#ifndef PinChangeInt_h
-#include <PinChangeInt.h>
+#ifndef PinChangeInt_userData_h
+#include <PinChangeInt_userData.h>
 #endif
 
 PCintPort::PCintPin PCintPort::PCintPin::pinDataAlloc[MAX_PIN_CHANGE_PINS];
@@ -17,7 +15,7 @@ PCintPort PCintPort::pcIntPorts[] = {
 	PCintPort(2,PCMSK2)
 };
 
-void PCintPort::addPin(uint8_t mode,uint8_t mask,PCIntvoidFuncPtr userFunc, PCIntvoidDataPtr userData)
+void PCintPort::addPin(uint8_t mode,uint8_t mask,PCIntvoidFuncPtr userFunc, void* userData)
 {
 	int i = 0;
 	PCintPin* p = PCintPin::pinDataAlloc;
@@ -31,7 +29,7 @@ void PCintPort::addPin(uint8_t mode,uint8_t mask,PCIntvoidFuncPtr userFunc, PCIn
 					p->PCintMode = mode;
 					*t = p;
 					p->PCintFunc = userFunc;
-					p->userData = userData;
+					p->PCintData = userData;
 					// set the mask
 					pcmask |= p->PCIntMask = mask;
 					// enable the interrupt
@@ -60,7 +58,7 @@ void PCintPort::delPin(uint8_t mask)
 			p.PCIntMask = 0;
 			p.PCintMode = 0;
 			p.PCintFunc = NULL;
-			p.userData = NULL;
+			p.PCintData = NULL;
 			do { // shuffle down as we pass through the list, filling the hole
 				*t = t[1];
 			} while (*t);
@@ -74,7 +72,7 @@ void PCintPort::delPin(uint8_t mask)
 /*
  * attach an interrupt to a specific pin using pin change interrupts.
  */
-void PCintPort::attachInterrupt(uint8_t pin, PCIntvoidFuncPtr userFunc, int mode, PCIntvoidDataPtr userData)
+void PCintPort::attachInterrupt(uint8_t pin, PCIntvoidFuncPtr userFunc, int mode, void* userData)
 {
 	uint8_t portNum = digitalPinToPort(pin);
 	if ((portNum == NOT_A_PORT) || (userFunc == NULL)) {
@@ -122,7 +120,7 @@ void PCintPort::PCint() {
 					|| ((p.PCintMode == FALLING) && !(curr & p.PCIntMask))
 					|| ((p.PCintMode == RISING) && (curr & p.PCIntMask))
 					) {
-					p.PCintFunc(p.userData);
+					p.PCintFunc(p.PCintData);
 				}
 			}
 			t++;
