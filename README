@@ -2,3 +2,4 @@ Fork of the Arduino PinChangeInt to add userdata variable
 
 See http://www.arduino.cc/playground/Main/PinChangeInt
 
+Use exactly like PinChangeInt except your callback must take a (void* userData) parameter (then you need to cast the pointer to the type you know it points to before dereferencing, see https://github.com/rambo/qp_motor_test/blob/master/motor.cpp for example (the motor::setup attaches the interrupt and the static method below is the callback).
