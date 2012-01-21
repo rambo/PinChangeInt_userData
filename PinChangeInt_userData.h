@@ -1,7 +1,7 @@
 /*
 	PinChangeInt.h
 */
-#include <WProgram.h>
+#include <Arduino.h>
 #ifndef Pins_Arduino_h
 #include <pins_arduino.h>
 #endif
