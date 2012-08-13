@@ -88,7 +88,7 @@ void PCintPort::detachInterrupt(uint8_t pin)
 {
 	uint8_t portNum = digitalPinToPort(pin);
 	if (portNum == NOT_A_PORT) {
-		//Serial.println("NOT_A_PORT det");
+		//Serial.println(F("NOT_A_PORT det"));
 		return;
 	} 
 	PCintPort& port = PCintPort::pcIntPorts[portNum - 2];
